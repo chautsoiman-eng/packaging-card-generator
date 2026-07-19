@@ -1,0 +1,173 @@
+/* 公仔包裝卡產生工具 — 內部自用 */
+
+@font-face { font-family: 'Quicksand';    src: url('fonts/Quicksand-700.woff2') format('woff2');    font-weight: 700; }
+@font-face { font-family: 'Shrikhand';    src: url('fonts/Shrikhand-400.woff2') format('woff2');    font-weight: 400; }
+@font-face { font-family: 'Montserrat';   src: url('fonts/Montserrat-VF.woff2') format('woff2');    font-weight: 100 900; }
+@font-face { font-family: 'Noto Sans';    src: url('fonts/NotoSans-400.woff2') format('woff2');     font-weight: 400; }
+@font-face { font-family: 'Noto Sans TC'; src: url('fonts/NotoSansTC-400.woff2') format('woff2');   font-weight: 400; }
+@font-face { font-family: 'Noto Sans TC'; src: url('fonts/NotoSansTC-700.woff2') format('woff2');   font-weight: 700; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans TC', 'Montserrat', system-ui, sans-serif;
+  background: #e8e6e1;
+  color: #262421;
+  font-size: 14px;
+}
+
+.app { display: flex; min-height: 100vh; }
+
+.panel {
+  width: 320px;
+  flex-shrink: 0;
+  background: #faf9f7;
+  border-right: 1px solid #d8d5cf;
+  padding: 20px 18px 40px;
+  overflow-y: auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+h1 { font-size: 17px; margin-bottom: 2px; }
+.panel > .hint { margin-bottom: 14px; }
+
+.group { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e3e0da; }
+.group h2 { font-size: 13px; color: #6b675f; margin-bottom: 10px; }
+
+.hint { font-size: 12px; color: #8a857b; line-height: 1.5; }
+
+.notice {
+  font-size: 12px; line-height: 1.5;
+  background: #fdf3e2; border: 1px solid #ecd9b4;
+  border-radius: 6px; padding: 7px 9px; margin-top: 8px;
+  color: #7a5c1e;
+}
+
+label { display: block; font-size: 12px; color: #55514a; margin-bottom: 9px; }
+label input[type="text"], label input[type="url"] {
+  display: block; width: 100%; margin-top: 3px;
+  padding: 7px 9px; font-size: 14px;
+  border: 1px solid #cfccc5; border-radius: 6px;
+  background: #fff; font-family: inherit;
+}
+label input:focus { outline: 2px solid #5599ad; border-color: transparent; }
+
+.file-drop {
+  display: block; cursor: pointer;
+  border: 1.5px dashed #b9b5ac; border-radius: 8px;
+  padding: 18px 12px; text-align: center;
+  font-size: 13px; color: #6b675f; background: #fff;
+  transition: border-color .15s, background .15s;
+}
+.file-drop:hover, .file-drop.dragover { border-color: #5599ad; background: #f2f8fa; }
+.file-drop input { display: none; }
+.file-drop.small { padding: 10px; font-size: 12px; margin-top: 8px; }
+.file-drop.loaded { border-style: solid; border-color: #7db28f; background: #f2f8f4; }
+
+details summary { font-size: 12px; color: #8a857b; cursor: pointer; margin-top: 8px; }
+
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch {
+  width: 44px; height: 34px; border-radius: 7px; cursor: pointer;
+  border: 2px solid transparent; overflow: hidden; position: relative;
+  padding: 0; background: none;
+}
+.swatch .top { position: absolute; inset: 0 0 40% 0; }
+.swatch .bottom { position: absolute; inset: 60% 0 0 0; }
+.swatch.active { border-color: #262421; }
+.swatch:focus-visible { outline: 2px solid #5599ad; }
+
+.adjust-target { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.seg {
+  flex: 1 1 calc(50% - 6px); padding: 6px 2px; font-size: 12px; font-family: inherit;
+  border: 1px solid #cfccc5; background: #fff; border-radius: 6px; cursor: pointer;
+  color: #55514a;
+}
+.seg.active { background: #37505c; color: #fff; border-color: #37505c; }
+
+.slider-row input[type="range"] { width: 100%; margin-top: 4px; }
+
+button.primary {
+  width: 100%; padding: 12px; font-size: 15px; font-family: inherit;
+  background: #37505c; color: #fff; border: none; border-radius: 8px;
+  cursor: pointer; margin-bottom: 8px;
+}
+button.primary:disabled { background: #b9b5ac; cursor: not-allowed; }
+button.primary:not(:disabled):hover { background: #2b3f49; }
+
+button.ghost {
+  width: 100%; padding: 8px; font-size: 12px; font-family: inherit;
+  background: none; border: 1px solid #cfccc5; border-radius: 6px;
+  cursor: pointer; color: #55514a; margin-top: 8px;
+}
+button.ghost:hover { border-color: #5599ad; color: #357080; }
+
+.preview-wrap {
+  flex: 1; display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px; overflow: auto;
+}
+#preview {
+  background: #fff;
+  box-shadow: 0 4px 24px rgba(40, 36, 30, .18);
+  max-width: 100%;
+  height: auto;
+  touch-action: none;
+}
+#preview.grabbable { cursor: grab; }
+#preview.grabbing { cursor: grabbing; }
+
+.check-row { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+.check-row input { width: 15px; height: 15px; }
+
+.input-with-btn { display: flex; gap: 6px; }
+.input-with-btn input { flex: 1; }
+button.mini {
+  flex: 0 0 auto; width: 34px; padding: 0; font-size: 15px;
+  border: 1px solid #cfccc5; border-radius: 6px; background: #fff; cursor: pointer;
+}
+button.mini:hover { border-color: #5599ad; }
+
+.color-pickers { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
+.color-pick {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  font-size: 11px; color: #6b675f; text-align: center; width: 74px;
+}
+.color-pick input[type="color"] {
+  width: 44px; height: 30px; padding: 0; border: 1px solid #cfccc5; border-radius: 7px;
+  cursor: pointer; background: none;
+}
+
+.btn-row { display: flex; gap: 8px; margin-top: 10px; }
+.btn-row .ghost { margin-top: 0; }
+.btn-row .primary { margin-bottom: 0; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+.modal {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(30, 28, 24, .55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal[hidden] { display: none; }
+.modal-box {
+  background: #faf9f7; border-radius: 12px; padding: 18px 20px;
+  max-width: min(92vw, 980px); max-height: 92vh; overflow: auto;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, .35);
+}
+.modal-box h3 { font-size: 16px; margin-bottom: 4px; }
+.modal-box > .hint { margin-bottom: 10px; max-width: 640px; }
+.brush-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+.brush-controls .seg { flex: 0 0 auto; padding: 6px 12px; }
+.brush-controls .slider-row { margin: 0; display: flex; align-items: center; gap: 8px; }
+.brush-controls .slider-row input { width: 140px; margin: 0; }
+#maskCanvas {
+  display: block; border: 1px solid #cfccc5; border-radius: 6px;
+  cursor: crosshair; touch-action: none; max-width: 100%;
+}
+
+@media (max-width: 760px) {
+  .app { flex-direction: column; }
+  .panel { width: 100%; height: auto; position: static; }
+}
