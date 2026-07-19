@@ -11,7 +11,7 @@ Moment Lab 內部自用工具：上載客戶相、填資料，一鍵產生 A4 30
 1. **網頁版**（如果已開咗 GitHub Pages）：直接開
    `https://chautsoiman-eng.github.io/packaging-card-generator/`
 2. **本機檔案**：落載呢個 repo（Code → Download ZIP），解壓後雙擊
-   `packaging-card-generator.html`，唔使裝任何嘢、唔使起 server
+   `index.html`，唔使裝任何嘢、唔使起 server
 
 ## 功能
 
