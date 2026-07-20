@@ -419,6 +419,77 @@ function render(ctx, s, forExport) {
   if (!forExport && state.adjustTarget === "bg" && state.persons.length && bgImg && bgDraw === bgImg) {
     drawPersonHints(ctx, s, bgImg);
   }
+
+  // 黑色邊框尺寸標註：淨係喺預覽度顯示，匯出成品唔會有
+  if (!forExport) {
+    drawDimensionOverlay(ctx, s);
+  }
+}
+
+/* ==================== 黑色邊框尺寸標註（淨喺預覽顯示） ==================== */
+const DIM_COLOR = "#e0007a";
+
+function ptToMM(pt) {
+  return (pt * 25.4 / 72).toFixed(1) + "mm";
+}
+
+/* 橫向尺寸線：兩端有短垂直刻度，中間標字（字喺線上方） */
+function dimH(ctx, s, x0, x1, y, label) {
+  ctx.save();
+  ctx.strokeStyle = DIM_COLOR;
+  ctx.fillStyle = DIM_COLOR;
+  ctx.lineWidth = 0.6 * s;
+  ctx.beginPath();
+  ctx.moveTo(x0 * s, y * s);
+  ctx.lineTo(x1 * s, y * s);
+  ctx.stroke();
+  for (const x of [x0, x1]) {
+    ctx.beginPath();
+    ctx.moveTo(x * s, (y - 2.2) * s);
+    ctx.lineTo(x * s, (y + 2.2) * s);
+    ctx.stroke();
+  }
+  ctx.font = `${6 * s}px Montserrat, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText(label, ((x0 + x1) / 2) * s, (y - 1.6) * s);
+  ctx.restore();
+}
+
+/* 直向尺寸線：兩端有短水平刻度，中間標字（字轉 90° 貼喺線左邊） */
+function dimV(ctx, s, y0, y1, x, label) {
+  ctx.save();
+  ctx.strokeStyle = DIM_COLOR;
+  ctx.fillStyle = DIM_COLOR;
+  ctx.lineWidth = 0.6 * s;
+  ctx.beginPath();
+  ctx.moveTo(x * s, y0 * s);
+  ctx.lineTo(x * s, y1 * s);
+  ctx.stroke();
+  for (const y of [y0, y1]) {
+    ctx.beginPath();
+    ctx.moveTo((x - 2.2) * s, y * s);
+    ctx.lineTo((x + 2.2) * s, y * s);
+    ctx.stroke();
+  }
+  ctx.translate(x * s, ((y0 + y1) / 2) * s);
+  ctx.rotate(-Math.PI / 2);
+  ctx.font = `${6 * s}px Montserrat, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText(label, 0, -1.6 * s);
+  ctx.restore();
+}
+
+function drawDimensionOverlay(ctx, s) {
+  // 正面卡刀模外框（黑色刀線）整體闊高
+  const dieW = T.die.right - T.die.left, dieH = T.die.bottom - T.die.top;
+  dimH(ctx, s, T.die.left, T.die.right, T.die.top - 4, ptToMM(dieW));
+  dimV(ctx, s, T.die.top, T.die.bottom, T.die.left - 10, ptToMM(dieH));
+
+  // 背景卡內框（黑色框線）闊高
+  const fx0 = T.frame.x, fx1 = T.frame.x + T.frame.w;
+  const fy0 = T.frame.y, fy1 = T.frame.y + T.frame.h;
+  dimH(ctx, s, fx0, fx1, fy1 + 8, ptToMM(T.frame.w));
+  dimV(ctx, s, fy0, fy1, fx0 - 14, ptToMM(T.frame.h));
 }
 
 /* 行首幾隻字用粗體（「使用說明」「材質・安全標章・認證圖示」） */
@@ -521,37 +592,45 @@ function renderExportCanvas() {
 function exportFileName() {
   // 檔名只用 ASCII：file:// 環境下中文檔名會被瀏覽器撇走
   const code = ($("fldCode").value.trim() || "card").replace(/[^A-Za-z0-9_-]/g, "");
-  return `package-card-${code || "export"}.png`;
+  return `package-card-${code || "export"}.pdf`;
 }
 
-function exportPng() {
+/* 匯出成品：A4 尺寸嘅 PDF（唔再出 PNG）。
+   內部照舊用 300dpi 高解析 canvas 畫好全張卡，再以 JPEG 嵌入
+   PDF（畫質 0.95，肉眼睇唔出差別，但檔案細好多，方便下載／分享）。 */
+function buildExportPdfBlob() {
   const canvas = renderExportCanvas();
-  canvas.toBlob((blob) => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = exportFileName();
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 30000);
-  }, "image/png");
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "a4", compress: true });
+  doc.addImage(dataUrl, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+  return doc.output("blob");
+}
+
+function exportPdf() {
+  const blob = buildExportPdfBlob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = exportFileName();
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 30000);
 }
 
 /* 後備方案：有啲網頁環境（例如嵌喺有安全限制嘅 iframe 入面睇）會擋咗
-   直接下載，撳「下載」冇反應。呢個掣改為喺新分頁開返張成品圖，
-   到時右鍵撳「另存圖片」／長按儲存就得。 */
+   直接下載，撳「下載」冇反應。呢個掣改為喺新分頁開返張成品 PDF，
+   到時右鍵撳「另存為」就得。 */
 function exportOpenTab() {
-  const canvas = renderExportCanvas();
-  canvas.toBlob((blob) => {
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, "_blank");
-    if (!win) {
-      alert("瀏覽器阻止咗開新分頁。請允許彈出視窗之後再試，或者改用本機檔案版本嘅工具（雙擊 packaging-card-generator.html）。");
-      URL.revokeObjectURL(url);
-      return;
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
-  }, "image/png");
+  const blob = buildExportPdfBlob();
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank");
+  if (!win) {
+    alert("瀏覽器阻止咗開新分頁。請允許彈出視窗之後再試，或者改用本機檔案版本嘅工具（雙擊 index.html）。");
+    URL.revokeObjectURL(url);
+    return;
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 /* ==================== 照片載入 ==================== */
@@ -1419,7 +1498,7 @@ function init() {
   mcv.addEventListener("pointerup", () => { maskEditor.painting = false; });
   mcv.addEventListener("pointercancel", () => { maskEditor.painting = false; });
 
-  $("btnExport").addEventListener("click", exportPng);
+  $("btnExport").addEventListener("click", exportPdf);
   $("btnExportTab").addEventListener("click", exportOpenTab);
 
   // 字體載入完成後重繪，確保預覽用啱字體

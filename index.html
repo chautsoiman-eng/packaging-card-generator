@@ -106,10 +106,11 @@
     </section>
 
     <section class="group">
-      <button type="button" class="primary" id="btnExport" disabled>下載成品 PNG（A4 · 300dpi）</button>
-      <p class="hint">2480 × 3508 px．要再執位可以拉入 Canva 做底圖</p>
-      <button type="button" class="ghost" id="btnExportTab" disabled>在新分頁開啟成品圖</button>
-      <p class="hint">如果「下載」撳咗冇反應（常見於網頁版本嘅安全限制），改用呢個掣，喺新分頁度右鍵「另存圖片」就得</p>
+      <button type="button" class="primary" id="btnExport" disabled>下載成品 PDF（A4）</button>
+      <p class="hint">內部以 300dpi 高解析度製作，A4（210 × 297mm）成品 PDF，可以直接送印</p>
+      <button type="button" class="ghost" id="btnExportTab" disabled>在新分頁開啟成品 PDF</button>
+      <p class="hint">如果「下載」撳咗冇反應（常見於網頁版本嘅安全限制），改用呢個掣，喺新分頁度「另存為」就得</p>
+      <p class="notice">📋 列印紙建議：雪銅紙上霧（消光/霧面過膜）</p>
     </section>
   </aside>
 
@@ -137,6 +138,7 @@
   </div>
 </div>
 
+<script src="vendor/jspdf.umd.min.js"></script>
 <script src="vendor/qrcode.js"></script>
 <script src="packaging-card-inpaint.js"></script>
 <script src="packaging-card-translit.js"></script>
