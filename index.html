@@ -33,27 +33,27 @@
 
     <section class="group">
       <h2>2 · 資料</h2>
-      <label>日期編碼
-        <input type="text" id="fldCode" value="0213" maxlength="8" placeholder="例：0213">
+      <label>日期編碼（相片左下角大數字）
+        <input type="text" id="fldCode" maxlength="8" placeholder="例：0101">
       </label>
-      <label>名字（英文行）
-        <input type="text" id="fldNameEn" value="WingWing &amp; Little M" placeholder="例：WingWing &amp; Little M">
+      <label>名字（英文行，相片下方名字橫幅第一行）
+        <input type="text" id="fldNameEn" placeholder="例：Coco &amp; Milo">
       </label>
-      <label>名字（日文行）
+      <label>名字（日文行，名字橫幅第二行）
         <div class="input-with-btn">
-          <input type="text" id="fldNameJp" value="インイン＆エムザイ" placeholder="例：インイン＆エムザイ">
+          <input type="text" id="fldNameJp" placeholder="例：ココ＆マイロ">
           <button type="button" class="mini" id="btnRetranslit" title="根據英文行重新自動產生">🔄</button>
         </div>
       </label>
       <p class="hint" id="translitHint">日文行會跟住英文行自動產生近似拼音（規則式，唔係翻譯服務）；自己手動改過之後就唔會再被蓋過，撳🔄可以重新產生</p>
-      <label>主題／行程名
-        <input type="text" id="fldTheme" value="Korea Trip 2025" placeholder="例：Korea Trip 2025">
+      <label>主題／行程名（右下角文字）
+        <input type="text" id="fldTheme" placeholder="例：Osaka Trip 2026">
       </label>
-      <label>QR code 連結
-        <input type="url" id="fldQr" value="https://www.instagram.com/chautsoi/" placeholder="https://…">
+      <label>QR code 連結（掃出嚟嘅內容）
+        <input type="url" id="fldQr" placeholder="例：https://example.com/">
       </label>
-      <label>官方網站連結（左下角小字）
-        <input type="url" id="fldWebsite" value="https://www.instagram.com/chautsoi/" placeholder="https://…">
+      <label>官方網站連結（左下角「公式サイト」嗰行小字）
+        <input type="url" id="fldWebsite" placeholder="例：https://example.com/">
       </label>
       <div class="btn-row">
         <button type="button" class="ghost" id="btnSaveDraft">暫存目前資料</button>
