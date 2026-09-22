@@ -128,6 +128,7 @@ const state = {
   bgPhoto: null,    // 背景卡另一張相（可選；null = 用同一張）
   // 三隻可自由揀嘅顏色：卡底色／LOGO 強調色／WORKS 字色
   colors: { light: PALETTES[0].light, deep: PALETTES[0].deep, works: PALETTES[0].works },
+  showLogo: true,      // 顯示／隱藏右上角 CHANMANS’ WORK 標誌
   paletteManual: false,
   nameJpAuto: true, // 日文行係咪跟住英文行自動產生（一旦手動改過就轉 false）
   // 正面照片取景：zoom ≥1，cx/cy = 取景中心（0~1 相對於原圖）
@@ -321,11 +322,13 @@ function render(ctx, s, forExport) {
   ctx.fillStyle = "#ffffff";
   drawFit(ctx, nameJp, T.nameJp.x * s, T.nameJp.baseline * s, 152 * s);
 
-  // ---- 右上 Logo ----
-  drawTracked(ctx, FIXED.logoLine1, T.logo1.x * s, T.logo1.baseline * s, T.logo1.size * s,
-    `400 ${T.logo1.size * s}px "Noto Sans"`, pal.deep, T.logo1.targetW * s);
-  drawTracked(ctx, FIXED.logoLine2, T.logo2.x * s, T.logo2.baseline * s, T.logo2.size * s,
-    `400 ${T.logo2.size * s}px "Noto Sans"`, pal.works, T.logo2.targetW * s);
+  // ---- 右上 Logo（可由介面開關） ----
+  if (state.showLogo) {
+    drawTracked(ctx, FIXED.logoLine1, T.logo1.x * s, T.logo1.baseline * s, T.logo1.size * s,
+      `400 ${T.logo1.size * s}px "Noto Sans"`, pal.deep, T.logo1.targetW * s);
+    drawTracked(ctx, FIXED.logoLine2, T.logo2.x * s, T.logo2.baseline * s, T.logo2.size * s,
+      `400 ${T.logo2.size * s}px "Noto Sans"`, pal.works, T.logo2.targetW * s);
+  }
 
   // ---- 三個資訊白框 ----
   for (const b of [T.boxWarn, T.boxUsage, T.boxMat]) {
@@ -1325,6 +1328,7 @@ function collectDraft() {
     qr: $("fldQr").value,
     website: $("fldWebsite").value,
     colors: { ...state.colors },
+    showLogo: state.showLogo,
     paletteManual: state.paletteManual,
     nameJpAuto: state.nameJpAuto,
     eraseEnabled: state.eraseEnabled,
@@ -1356,6 +1360,10 @@ function restoreDraft() {
   if (d.qr != null) $("fldQr").value = d.qr;
   if (d.website != null) $("fldWebsite").value = d.website;
   if (d.colors) state.colors = { ...state.colors, ...d.colors };
+  if (typeof d.showLogo === "boolean") {
+    state.showLogo = d.showLogo;
+    $("chkShowLogo").checked = d.showLogo;
+  }
   if (typeof d.paletteManual === "boolean") state.paletteManual = d.paletteManual;
   if (typeof d.nameJpAuto === "boolean") state.nameJpAuto = d.nameJpAuto;
   if (typeof d.eraseEnabled === "boolean") {
@@ -1409,6 +1417,11 @@ function init() {
   });
 
   $("btnSaveDraft").addEventListener("click", saveDraft);
+
+  $("chkShowLogo").addEventListener("change", () => {
+    state.showLogo = $("chkShowLogo").checked;
+    requestRender();
+  });
 
   $("segFront").addEventListener("click", () => setAdjustTarget("front"));
   $("segBg").addEventListener("click", () => setAdjustTarget("bg"));
